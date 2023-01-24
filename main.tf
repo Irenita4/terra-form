@@ -9,4 +9,21 @@ resource "aws_instance" "irene-server"{
   tags = {
     Name = "irene-server"
   }
+  user_data = <<-EOF
+      #!/bin/bash
+      echo "Hello, World!" > index.html
+      nohup busybox httpd -f -p 8080 &
+      EOF
+
+  user_data_replace_on_change = true
+  
+  vpc_security_group_ids = [aws_security_group.irene-server.id]  
+}
+resource "aws_security_group" "irene-server" {
+  ingress {
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
